@@ -24,6 +24,8 @@
 static const BYTE ECI_CAN_FD_DLC_LUT[16] = { 0,1,2,3,4,5,6,7,8,12,16,20,24,32,48,64 };
 int data;
 WORD Get_position[12][64];
+WORD Get_velocity[12][64];
+WORD Get_torque[12][64];
 //////////////////////////////////////////////////////////////////////////
 // global variables
 
@@ -324,7 +326,7 @@ void EciPrintCtrlMessage(const ECI_CTRL_MESSAGE* pstcCtrlMsg)
                       Get_position[2][bIndex - 4] = pstcCtrlMsg->u.sLinMessage.u.V0.abData[bIndex];
                     else if(pstcCtrlMsg->u.sCanMessage.u.V1.dwMsgId == 0x00000588)
                       Get_position[3][bIndex - 4] = pstcCtrlMsg->u.sLinMessage.u.V0.abData[bIndex];
-                  }      
+                  }
                 }
               }
               //printf("存放反馈角度数据在EciDemoCommon.c文件处");

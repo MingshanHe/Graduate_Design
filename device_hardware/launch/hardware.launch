@@ -16,9 +16,11 @@
     <rosparam command="load" file="$(find device_hardware)/config/controller.yaml"/>
 
     <node name="device_hardware_node" pkg="device_hardware" type="device_hardware_node" output="screen" />
+
     <arg name="controller1" default="controllers/joint_position_controller"/>
     <arg name="controller2" default="controllers/joint_state_controller"/>
-  <!-- start controller -->
-  <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
-      output="screen" args="start $(arg controller1) $(arg controller2) " />
+    <!-- start controller -->
+    <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
+        output="screen" args="start $(arg controller1) $(arg controller2) " />
+    <node pkg="rosbag" type="record" name="bag_record" args="/topic1 /topic2"/> 
 </launch>

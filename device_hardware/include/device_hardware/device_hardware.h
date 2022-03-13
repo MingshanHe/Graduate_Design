@@ -46,12 +46,6 @@ namespace device_hardware
         std::vector< hardware_interface::JointHandle >  vj_handle_;
         std::vector< hardware_interface::JointHandle >  ej_handle_;
 
-        // std::vector<joint_limits_interface::JointLimits>     joint_limit_;
-        // std::vector<joint_limits_interface::SoftJointLimits> joint_solft_limit_;
-
-        std::vector<double> joint_position_sim_;
-        std::vector<double> joint_velocity_sim_;
-        std::vector<double> joint_effort_sim_;
     };
 
     class device_hardware : public hardware_interface::RobotHW

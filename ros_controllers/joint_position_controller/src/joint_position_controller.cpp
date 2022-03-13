@@ -63,7 +63,7 @@ void Joint_Position_Controller::update(const ros::Time& time, const ros::Duratio
         joint_velocity_state[i] = joint_handles_[i].getVelocity();
         joint_effort_state[i] = joint_handles_[i].getEffort();
     }
-
+//TODO: Add the joint trajectory.
     writePositionCommands(period);
 
 

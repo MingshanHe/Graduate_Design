@@ -71,16 +71,6 @@ namespace device_hardware
         init_hardware();
 
 
-        Robot.joint_position_state_ = read_position();
-        write_position(Robot.joint_position_state_);
-
-        // for (size_t j = 0;j < Robot.joints_num;j++)
-        // {
-        //     Robot.joint_position_command_[j] = position_tmp[j];
-        //     Robot.joint_position_state_[j] = position_tmp[j];
-        // }
-
-
         registerInterface(&js_interface_);
         registerInterface(&pj_interface_);
         registerInterface(&vj_interface_);
@@ -92,9 +82,15 @@ namespace device_hardware
 
     void device_hardware::read(const ros::Time& time, const ros::Duration& period)
     {
+        std::vector<double> zero;
+        
+        for (size_t i = 0; i < 4; i++)
+        {
+            zero.push_back(0.0);
+        }
         Robot.joint_position_state_ = read_position();
-        Robot.joint_velocity_state_ = read_position();
-        Robot.joint_effort_state_   = read_position();
+        Robot.joint_velocity_state_ = read_velocity();
+        Robot.joint_effort_state_   = read_torque();
 
         // for(size_t i = 0; i < Robot.joints_num; i++)
         // {
@@ -105,10 +101,6 @@ namespace device_hardware
 
     void device_hardware::write(const ros::Time& time, const ros::Duration& period)
     {
-        // for(size_t i = 0; i < Robot.joints_num; i++)
-        // {
-        //     position_tmp[i] = Robot.joint_position_command_[i];
-        // }
         write_position(Robot.joint_position_command_);
     }
 

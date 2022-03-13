@@ -260,8 +260,8 @@ ECI_RESULT Can_Tx_Data(ECI_RESULT hResult,BYTE tx_data[6][8],DWORD *Move_motorID
         while((ECI_OK == hResult) && (dwCount > dwMsgIndex))
         {
           
-          // EciPrintCtrlMessage(&astcCtrlMsg[dwMsgIndex]);
-          // OS_Printf("\n");
+          EciPrintCtrlMessage(&astcCtrlMsg[dwMsgIndex]);
+          OS_Printf("\n");
 
           //*** Proceed with next message
           dwMsgIndex++;
@@ -284,7 +284,163 @@ ECI_RESULT Can_Rx_Position(ECI_RESULT hResult,BYTE tx_data[6][8],DWORD *Move_mot
     DWORD            dwTxMsgCount = ECIDEMO_TX_MSGCOUNT_CAN;
     DWORD            dwIndex      = 0;
 
-    OS_Printf("Now, sending %u CAN Messages\n", dwTxMsgCount);
+    // OS_Printf("Now, sending %u CAN Messages\n", dwTxMsgCount);
+
+    //*** Send Loop
+    for(dwIndex=0; dwIndex < dwTxMsgCount; dwIndex++)
+    {
+      //*** Prepare CAN Message to send
+      stcCtrlMsg.wCtrlClass                            = ECI_CTRL_CAN;
+      stcCtrlMsg.u.sCanMessage.dwVer                   = ECI_STRUCT_VERSION_V0;
+      stcCtrlMsg.u.sCanMessage.u.V0.dwMsgId            = Move_motorID[dwIndex];//(dwIndex % (ECI_CAN_MAX_11BIT_ID +1));
+      stcCtrlMsg.u.sCanMessage.u.V0.uMsgInfo.Bits.dlc  = 8;//(dwIndex % (_countof(stcCtrlMsg.u.sCanMessage.u.V0.abData)+1));
+      memcpy( &stcCtrlMsg.u.sCanMessage.u.V0.abData[0],
+              &tx_data[dwIndex][0],
+              min(4, sizeof(dwIndex)));
+      memcpy( &stcCtrlMsg.u.sCanMessage.u.V0.abData[4],
+              &tx_data[dwIndex][4],
+              min(4, sizeof(dwIndex)));     
+      //OS_Sleep(1);
+      //*** Send one message
+      #ifdef ECIDEMO_HWUSEPOLLINGMODE
+      {
+        DWORD dwStartTime = OS_GetTimeInMs();
+
+        //*** Loop until message is sent or timeout has passed
+        do
+        {
+          hResult = ECI113_CtrlSend( dwCtrlHandle, &stcCtrlMsg, 0);
+          if(ECI_OK != hResult)
+            { OS_Sleep(1);}
+        }while((ECI_OK != hResult) && ((OS_GetTimeInMs() - dwStartTime) < ECIDEMO_TX_TIMEOUT));
+      }
+      #else
+        hResult = ECI113_CtrlSend( dwCtrlHandle, &stcCtrlMsg, ECIDEMO_TX_TIMEOUT);
+      #endif //ECIDEMO_HWUSEPOLLINGMODE
+      if(ECI_OK != hResult)
+      {
+        OS_Printf("Error while sending CAN Messages\n");
+        ECIDEMO_CHECKERROR(ECI113_CtrlSend);
+        hResult = ECI_OK;
+        break;
+      }
+      else
+      {
+        //*** Read out all received messages
+        ECI_CTRL_MESSAGE  astcCtrlMsg[20] = {{0}};
+        DWORD             dwCount         = _countof(astcCtrlMsg);
+        DWORD             dwMsgIndex      = 0;
+
+        //*** Try to read some messages
+        hResult = ECI113_CtrlReceive(dwCtrlHandle, &dwCount, astcCtrlMsg, 5);
+
+        //*** Loop through all received messages
+        dwMsgIndex = 0;
+        while((ECI_OK == hResult) && (dwCount > dwMsgIndex))
+        {
+          EciPrintCtrlMessage(&astcCtrlMsg[dwMsgIndex]);
+          OS_Printf("\n");
+
+          //*** Proceed with next message
+          dwMsgIndex++;
+        }//end while
+        //*** Reset Error code and proceed with transmission
+        hResult = ECI_OK;
+      }//end else
+    }//end for
+  }//endif
+
+}
+
+ECI_RESULT Can_Rx_Velocity(ECI_RESULT hResult,BYTE tx_data[6][8],DWORD *Move_motorID)
+{
+  //ECI_CTRL_HDL  dwCtrlHandle  = ECI_INVALID_HANDLE;
+  //*** Send some CAN Messages
+  if(ECI_OK == hResult)
+  {
+    ECI_CTRL_MESSAGE stcCtrlMsg   = {0};
+    DWORD            dwTxMsgCount = ECIDEMO_TX_MSGCOUNT_CAN;
+    DWORD            dwIndex      = 0;
+
+    // OS_Printf("Now, sending %u CAN Messages\n", dwTxMsgCount);
+
+    //*** Send Loop
+    for(dwIndex=0; dwIndex < dwTxMsgCount; dwIndex++)
+    {
+      //*** Prepare CAN Message to send
+      stcCtrlMsg.wCtrlClass                            = ECI_CTRL_CAN;
+      stcCtrlMsg.u.sCanMessage.dwVer                   = ECI_STRUCT_VERSION_V0;
+      stcCtrlMsg.u.sCanMessage.u.V0.dwMsgId            = Move_motorID[dwIndex];//(dwIndex % (ECI_CAN_MAX_11BIT_ID +1));
+      stcCtrlMsg.u.sCanMessage.u.V0.uMsgInfo.Bits.dlc  = 8;//(dwIndex % (_countof(stcCtrlMsg.u.sCanMessage.u.V0.abData)+1));
+      memcpy( &stcCtrlMsg.u.sCanMessage.u.V0.abData[0],
+              &tx_data[dwIndex][0],
+              min(4, sizeof(dwIndex)));
+      memcpy( &stcCtrlMsg.u.sCanMessage.u.V0.abData[4],
+              &tx_data[dwIndex][4],
+              min(4, sizeof(dwIndex)));     
+      //OS_Sleep(1);
+      //*** Send one message
+      #ifdef ECIDEMO_HWUSEPOLLINGMODE
+      {
+        DWORD dwStartTime = OS_GetTimeInMs();
+
+        //*** Loop until message is sent or timeout has passed
+        do
+        {
+          hResult = ECI113_CtrlSend( dwCtrlHandle, &stcCtrlMsg, 0);
+          if(ECI_OK != hResult)
+            { OS_Sleep(1);}
+        }while((ECI_OK != hResult) && ((OS_GetTimeInMs() - dwStartTime) < ECIDEMO_TX_TIMEOUT));
+      }
+      #else
+        hResult = ECI113_CtrlSend( dwCtrlHandle, &stcCtrlMsg, ECIDEMO_TX_TIMEOUT);
+      #endif //ECIDEMO_HWUSEPOLLINGMODE
+      if(ECI_OK != hResult)
+      {
+        OS_Printf("Error while sending CAN Messages\n");
+        ECIDEMO_CHECKERROR(ECI113_CtrlSend);
+        hResult = ECI_OK;
+        break;
+      }
+      else
+      {
+        //*** Read out all received messages
+        ECI_CTRL_MESSAGE  astcCtrlMsg[20] = {{0}};
+        DWORD             dwCount         = _countof(astcCtrlMsg);
+        DWORD             dwMsgIndex      = 0;
+
+        //*** Try to read some messages
+        hResult = ECI113_CtrlReceive(dwCtrlHandle, &dwCount, astcCtrlMsg, 5);
+
+        //*** Loop through all received messages
+        dwMsgIndex = 0;
+        while((ECI_OK == hResult) && (dwCount > dwMsgIndex))
+        {
+          EciPrintCtrlMessage(&astcCtrlMsg[dwMsgIndex]);
+          OS_Printf("\n");
+
+          //*** Proceed with next message
+          dwMsgIndex++;
+        }//end while
+        //*** Reset Error code and proceed with transmission
+        hResult = ECI_OK;
+      }//end else
+    }//end for
+  }//endif
+
+}
+
+ECI_RESULT Can_Rx_Torque(ECI_RESULT hResult,BYTE tx_data[6][8],DWORD *Move_motorID)
+{
+  //ECI_CTRL_HDL  dwCtrlHandle  = ECI_INVALID_HANDLE;
+  //*** Send some CAN Messages
+  if(ECI_OK == hResult)
+  {
+    ECI_CTRL_MESSAGE stcCtrlMsg   = {0};
+    DWORD            dwTxMsgCount = ECIDEMO_TX_MSGCOUNT_CAN;
+    DWORD            dwIndex      = 0;
+
+    // OS_Printf("Now, sending %u CAN Messages\n", dwTxMsgCount);
 
     //*** Send Loop
     for(dwIndex=0; dwIndex < dwTxMsgCount; dwIndex++)

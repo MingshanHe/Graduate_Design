@@ -19,6 +19,10 @@ void init_hardware();
 
 std::vector<double> read_position();
 
+std::vector<double> read_velocity();
+
+std::vector<double> read_torque();
+
 void write_position(std::vector<double> data);
 
 
