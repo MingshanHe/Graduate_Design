@@ -88,11 +88,12 @@ void Joint_Position_Controller::update(const ros::Time& time, const ros::Duratio
 /*!
  * \brief Subscriber's callback: copies twist commands
  */
-void Joint_Position_Controller::command_joint_pos(const geometry_msgs::Quaternion &msg) {
-    joint_position_command[0] = msg.x;
-    joint_position_command[1] = msg.y;
-    joint_position_command[2] = msg.z;
-    joint_position_command[3] = msg.w;
+void Joint_Position_Controller::command_joint_pos(const joint_control_msg::JointControl &msg) {
+    std::cout<<"In callback.----------------------------------------"<<std::endl;
+    joint_position_command[0] = msg.joint1;
+    joint_position_command[1] = msg.joint2;
+    joint_position_command[2] = msg.joint3;
+    joint_position_command[3] = msg.joint4;
 
 }
 
@@ -108,7 +109,7 @@ void Joint_Position_Controller::command_joint_pos(const geometry_msgs::Quaternio
 void Joint_Position_Controller::writePositionCommands(
                                     const ros::Duration& period) {
     for(std::size_t i=0; i < this->joint_handles_.size(); i++) {
-      this->joint_handles_[i].setCommand(joint_position_command[i]);
+        this->joint_handles_[i].setCommand(joint_position_command[i]);
     }
 }
 

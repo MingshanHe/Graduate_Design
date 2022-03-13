@@ -15,6 +15,7 @@
 #include <realtime_tools/realtime_publisher.h>
 #include <vector>
 #include "geometry_msgs/Quaternion.h"
+#include "joint_control_msg/JointControl.h"
 namespace joint_position_controller
 {
 
@@ -34,7 +35,7 @@ public:
 
     void update(const ros::Time& time, const ros::Duration& period);
 
-    void command_joint_pos(const geometry_msgs::Quaternion &msg);
+    void command_joint_pos(const joint_control_msg::JointControl &msg);
 private:
 
     void writePositionCommands(const ros::Duration& period);
