@@ -1,0 +1,26 @@
+<launch>
+
+    <!-- The name of the controllers and its namespace -->
+    <arg name="controllers_namespace" value="controllers"/>
+    <!-- The single robot controllers -->
+    <arg name="position_controller" value="joint_position_controller"/>
+    <!-- The joint state controller -->
+    <arg name="state_controller" value="joint_state_controller"/>
+
+    <!-- load robots and controllers based on the switch mode -->
+    <param name="controllers_namespace" value="$(arg controllers_namespace)"/>
+    <param name="position_controller" value="$(arg position_controller)"/>
+    <param name="state_controller" value="$(arg state_controller)"/>
+
+
+    <rosparam command="load" file="$(find device_hardware)/config/controller.yaml"/>
+
+    <node name="device_hardware_node" pkg="device_hardware" type="device_hardware_node" output="screen" />
+
+    <arg name="controller1" default="controllers/joint_position_controller"/>
+    <arg name="controller2" default="controllers/joint_state_controller"/>
+    <!-- start controller -->
+    <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
+        output="screen" args="start $(arg controller1) $(arg controller2) " />
+    <node pkg="rosbag" type="record" name="bag_record" args="/topic1 /topic2"/> 
+</launch>
