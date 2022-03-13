@@ -1,6 +1,0 @@
-{
-    "board": "arduino:avr:uno",
-    "port": "/dev/ttyUSB0",
-    "programmer": "arduino:usbasp",
-    "sketch": "sensor_module/Ardunio_Code/Muscle_Electric_Sensor_Code.ino"
-}
