@@ -1,0 +1,7 @@
+<library path="lib/libpi_controller">
+  <class name="impedance_RBF_controller/IMP_RBF_Controller" type="impedance_RBF_controller::IMP_RBF_Controller" base_class_type="controller_interface::ControllerBase">
+    <description>
+        impedance and rbf control
+    </description>
+  </class>
+</library>
